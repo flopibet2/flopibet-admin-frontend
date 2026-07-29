@@ -3,7 +3,10 @@ const API_BASE = ("https://web-production-b4e4e.up.railway.app").replace(/\/$/, 
 const supportApp = document.getElementById("supportApp");
 const logoutBtn = document.getElementById("logoutBtn");
 const threadList = document.getElementById("threadList");
+const threadListContainer = document.getElementById("threadListContainer");
+const threadPlaceholder = document.getElementById("threadPlaceholder");
 const threadView = document.getElementById("threadView");
+const backToListBtn = document.getElementById("backToListBtn");
 const currentThreadEmail = document.getElementById("currentThreadEmail");
 const deleteThreadBtn = document.getElementById("deleteThreadBtn");
 const threadMessages = document.getElementById("threadMessages");
@@ -49,20 +52,20 @@ async function loadThreads() {
     threadsData = data.threads || [];
     renderThreadList();
   } catch (err) {
-    threadList.innerHTML = `<div style="padding:16px; color:var(--warning);">Failed to load threads: ${err.message}</div>`;
+    threadList.innerHTML = `<div class="p-6 text-rose-400 text-sm text-center font-medium">Failed to load threads: ${err.message}</div>`;
   }
 }
 
 function renderThreadList() {
   if (threadsData.length === 0) {
-    threadList.innerHTML = `<div style="padding: 16px; color: var(--muted);">No support emails found.</div>`;
+    threadList.innerHTML = `<div class="p-6 text-slate-400 text-sm text-center font-medium">No active support emails found.</div>`;
     return;
   }
 
   threadList.innerHTML = "";
   threadsData.forEach(thread => {
     const el = document.createElement("div");
-    el.className = `thread-item ${thread._id === currentThreadId ? 'active' : ''}`;
+    el.className = `p-4 mb-2 rounded-2xl cursor-pointer transition-all border ${thread._id === currentThreadId ? 'bg-slate-700/80 border-slate-600 shadow-md translate-x-1' : 'bg-transparent border-transparent hover:bg-slate-700/40 hover:border-slate-700/50'}`;
     el.onclick = () => selectThread(thread._id);
     
     // get latest message date if possible
@@ -73,8 +76,8 @@ function renderThreadList() {
     const displayDate = new Date(lastDate).toLocaleString();
 
     el.innerHTML = `
-      <div class="thread-item-email">${escapeHtml(thread.user_email)}</div>
-      <div class="thread-item-date">${displayDate}</div>
+      <div class="font-bold text-sm text-slate-200 truncate mb-1.5">${escapeHtml(thread.user_email)}</div>
+      <div class="text-xs text-slate-400 font-medium">${displayDate}</div>
     `;
     threadList.appendChild(el);
   });
@@ -87,7 +90,19 @@ function selectThread(id) {
   const thread = threadsData.find(t => t._id === id);
   if (!thread) return;
 
+  // On mobile, hide list and show chat
+  if (window.innerWidth < 1024) {
+    threadListContainer.classList.add("hidden");
+  }
+  
+  if (threadPlaceholder) {
+    threadPlaceholder.classList.remove("lg:flex");
+    threadPlaceholder.classList.add("hidden");
+  }
+  
   threadView.classList.remove("hidden");
+  threadView.classList.add("flex");
+  
   currentThreadEmail.textContent = thread.user_email;
   
   threadMessages.innerHTML = "";
@@ -95,16 +110,26 @@ function selectThread(id) {
     thread.messages.forEach(msg => {
       const bubble = document.createElement("div");
       const isOutbound = msg.direction === 'outbound';
-      bubble.className = `chat-bubble ${isOutbound ? 'chat-outbound' : 'chat-inbound'}`;
+      bubble.className = `flex flex-col max-w-[90%] md:max-w-[80%] ${isOutbound ? 'self-end' : 'self-start'}`;
       
       const dateStr = new Date(msg.created_at).toLocaleString();
-      const meta = isOutbound ? `Admin (${msg.admin || 'System'}) - ${dateStr}` : `User (${msg.sender}) - ${dateStr}`;
+      const meta = isOutbound ? `Admin (${msg.admin || 'System'}) • ${dateStr}` : `User (${msg.sender}) • ${dateStr}`;
       const safeContent = escapeHtml(msg.content).replace(/\n/g, '<br>');
       
+      const bubbleBg = isOutbound 
+          ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-50' 
+          : 'bg-slate-800/80 border-slate-700 text-slate-200';
+      const bubbleRadius = isOutbound
+          ? 'rounded-2xl rounded-tr-sm'
+          : 'rounded-2xl rounded-tl-sm';
+      const metaAlign = isOutbound ? 'text-right' : 'text-left';
+
       bubble.innerHTML = `
-        <span class="chat-meta">${escapeHtml(meta)}</span>
-        <div style="font-weight:bold; margin-bottom:4px;">${escapeHtml(msg.subject || 'No Subject')}</div>
-        <p class="chat-content">${safeContent}</p>
+        <span class="text-[10px] md:text-xs font-medium text-slate-500 mb-1.5 px-1 ${metaAlign}">${escapeHtml(meta)}</span>
+        <div class="px-4 py-3 md:px-5 md:py-4 border backdrop-blur-sm shadow-sm ${bubbleBg} ${bubbleRadius}">
+            <div class="font-bold text-sm mb-2 opacity-90 border-b border-current/20 pb-2 ${!msg.subject ? 'hidden' : ''}">${escapeHtml(msg.subject || '')}</div>
+            <p class="text-sm md:text-base leading-relaxed">${safeContent}</p>
+        </div>
       `;
       threadMessages.appendChild(bubble);
     });
@@ -182,6 +207,15 @@ deleteThreadBtn.addEventListener("click", async () => {
     
     currentThreadId = null;
     threadView.classList.add("hidden");
+    threadView.classList.remove("flex");
+    
+    if (window.innerWidth < 1024) {
+      threadListContainer.classList.remove("hidden");
+    } else if (threadPlaceholder) {
+      threadPlaceholder.classList.remove("hidden");
+      threadPlaceholder.classList.add("lg:flex");
+    }
+    
     await loadThreads();
   } catch (err) {
     alert(err.message);
@@ -194,6 +228,24 @@ logoutBtn.addEventListener("click", () => {
   localStorage.removeItem("admin_portal_token");
   window.location.href = "index.html";
 });
+
+if (backToListBtn) {
+  backToListBtn.addEventListener("click", () => {
+    // Hide chat, show list on mobile
+    threadView.classList.add("hidden");
+    threadView.classList.remove("flex");
+    
+    if (window.innerWidth < 1024) {
+      threadListContainer.classList.remove("hidden");
+    } else if (threadPlaceholder) {
+      threadPlaceholder.classList.remove("hidden");
+      threadPlaceholder.classList.add("lg:flex");
+    }
+    
+    currentThreadId = null;
+    renderThreadList();
+  });
+}
 
 function escapeHtml(unsafe) {
   if (!unsafe) return "";
@@ -210,6 +262,7 @@ function escapeHtml(unsafe) {
 if (!authToken) {
   window.location.href = "index.html";
 } else {
-  supportApp.style.display = "block";
+  supportApp.classList.remove("hidden");
+  supportApp.style.display = "flex";
   loadThreads();
 }

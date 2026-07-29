@@ -516,3 +516,27 @@ td:nth-child(3) {
 .delete-btn:hover {
   background: rgba(255, 99, 132, 0.2);
 }
+
+@media (max-width: 980px) {
+  .support-container {
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: unset !important;
+  }
+  
+  .thread-list {
+    flex: none !important;
+    height: 300px;
+    max-height: 40vh;
+  }
+  
+  .thread-view {
+    height: 500px;
+    max-height: 60vh;
+  }
+  
+  .hero {
+    margin-bottom: 16px !important;
+    padding: 16px !important;
+  }
+}
