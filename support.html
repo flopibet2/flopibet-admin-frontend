@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support - Admin Portal</title>
+  <link rel="icon" type="image/png" href="./flopibet-tab.png" />
+  <link rel="apple-touch-icon" href="./flopibet-tab.png" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="shell" id="supportApp" style="display:none;">
+    <section class="hero" style="grid-template-columns: 1fr auto; align-items: center; margin-bottom: 24px;">
+      <div>
+        <p class="eyebrow">Admin Portal</p>
+        <h1>Support Tickets</h1>
+      </div>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <a href="index.html" class="ghost-btn" style="text-decoration:none;">Back to Dashboard</a>
+        <button id="logoutBtn" type="button" class="logout-btn">Logout</button>
+      </div>
+    </section>
+
+    <div class="support-container">
+      <div class="thread-list" id="threadList">
+        <!-- Threads will be loaded here -->
+        <div style="padding: 16px; color: var(--muted);">Loading threads...</div>
+      </div>
+      
+      <div class="thread-view hidden" id="threadView">
+        <div class="thread-header">
+          <h3 id="currentThreadEmail">user@example.com</h3>
+          <button class="delete-btn" id="deleteThreadBtn">Delete Thread</button>
+        </div>
+        
+        <div class="thread-messages" id="threadMessages">
+          <!-- Messages will be rendered here -->
+        </div>
+        
+        <form class="thread-composer" id="respondForm">
+          <textarea id="responseText" placeholder="Type your response here..." required></textarea>
+          <div class="composer-actions">
+            <button type="submit" class="primary-btn" id="sendResponseBtn">Send Reply</button>
+          </div>
+          <p class="auth-error" id="respondError" style="margin-top: 8px;"></p>
+        </form>
+      </div>
+    </div>
+  </main>
+  
+  <script src="./support.js"></script>
+</body>
+</html>

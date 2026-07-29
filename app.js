@@ -1,5 +1,5 @@
 const API_BASE =
-  (window.ADMIN_API_BASE || "https://web-production-b4e4e.up.railway.app").replace(/\/$/, "");
+  ("https://web-production-b4e4e.up.railway.app").replace(/\/$/, "");
 
 const authGate = document.getElementById("authGate");
 const dashboardApp = document.getElementById("dashboardApp");
