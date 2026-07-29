@@ -99,11 +99,12 @@ function selectThread(id) {
       
       const dateStr = new Date(msg.created_at).toLocaleString();
       const meta = isOutbound ? `Admin (${msg.admin || 'System'}) - ${dateStr}` : `User (${msg.sender}) - ${dateStr}`;
+      const safeContent = escapeHtml(msg.content).replace(/\n/g, '<br>');
       
       bubble.innerHTML = `
         <span class="chat-meta">${escapeHtml(meta)}</span>
         <div style="font-weight:bold; margin-bottom:4px;">${escapeHtml(msg.subject || 'No Subject')}</div>
-        <p class="chat-content">${escapeHtml(msg.content)}</p>
+        <p class="chat-content">${safeContent}</p>
       `;
       threadMessages.appendChild(bubble);
     });
