@@ -1,4 +1,4 @@
-const API_BASE = ("https://web-production-b4e4e.up.railway.app").replace(/\/$/, "");
+const API_BASE = ("https://flopibet-admin-backend-production.up.railway.app").replace(/\/$/, "");
 
 const supportApp = document.getElementById("supportApp");
 const logoutBtn = document.getElementById("logoutBtn");
